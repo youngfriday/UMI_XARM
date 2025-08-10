@@ -1,0 +1,36 @@
+{
+  # xArm 机器人配置示例
+  "robots": [
+    {
+      "robot_type": "xarm",  
+      "robot_ip": "127.0.0.1",  # xArm 控制器的 IP 地址
+      "robot_obs_latency": 0.0001, 
+      "robot_action_latency": 0.1,  # xArm 的动作延迟
+      "tcp_offset": 0.0,  # 工具中心点偏移
+      # 桌面高度阈值，用于手指-桌面碰撞避免
+      # -inf 表示禁用
+      "height_threshold": 0.235,
+      # 球体碰撞原语的大小和位置，用于夹爪间的碰撞避免
+      # 0 表示禁用
+      "sphere_radius": 0.1, 
+      "sphere_center": [0, -0.06, -0.185]
+    }
+  ],
+  # 夹爪配置，0->右臂 1->左臂
+  # 对于xArm，夹爪是集成的，但仍需要配置延迟参数
+  "grippers": [
+    {
+      "gripper_ip": "127.0.0.1",  # 与机器人IP相同，因为是集成的
+      "gripper_port": 4242,  # 使用xArm接口服务器端口
+      "gripper_obs_latency": 0.01, 
+      "gripper_action_latency": 0.1
+    }
+  ],
+  # 单臂系统的变换矩阵（单位矩阵）
+  "tx_left_right": [
+    [ 1.0,  0.0,  0.0,  0.0],
+    [ 0.0,  1.0,  0.0,  0.0],
+    [ 0.0,  0.0,  1.0,  0.0],
+    [ 0.0,  0.0,  0.0,  1.0]
+  ]
+} 
