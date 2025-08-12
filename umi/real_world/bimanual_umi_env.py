@@ -8,6 +8,8 @@ from multiprocessing.managers import SharedMemoryManager
 from umi.real_world.rtde_interpolation_controller import RTDEInterpolationController
 from umi.real_world.wsg_controller import WSGController
 from umi.real_world.franka_interpolation_controller import FrankaInterpolationController
+from umi.real_world.xarm_interpolation_controller import XArmInterpolationController
+from umi.real_world.xarm_gripper_controller import XArmGripperController
 from umi.real_world.multi_uvc_camera import MultiUvcCamera, VideoRecorder
 from diffusion_policy.common.timestamp_accumulator import (
     TimestampActionAccumulator,
@@ -239,18 +241,45 @@ class BimanualUmiEnv:
                     verbose=False,
                     receive_latency=rc['robot_obs_latency']
                 )
+            elif rc['robot_type'].startswith('xarm'):
+                this_robot = XArmInterpolationController(
+                    shm_manager=shm_manager,
+                    robot_ip=rc['robot_ip'],
+                    robot_port=4242,  # 默认 XArm 服务器端口
+                    frequency=125,  # XArm 建议频率
+                    Kx_scale=1.0,
+                    Kxd_scale=1.0,
+                    launch_timeout=3,
+                    joints_init=rc.get('joints_init') if init_joints else None,
+                    joints_init_duration=4,
+                    soft_real_time=False,
+                    verbose=False,
+                    receive_latency=rc['robot_obs_latency']
+                )
             else:
-                raise NotImplementedError()
+                raise NotImplementedError(f"Unsupported robot type: {rc['robot_type']}")
             robots.append(this_robot)
 
-        for gc in grippers_config:
-            this_gripper = WSGController(
-                shm_manager=shm_manager,
-                hostname=gc['gripper_ip'],
-                port=gc['gripper_port'],
-                receive_latency=gc['gripper_obs_latency'],
-                use_meters=True
-            )
+        for i, gc in enumerate(grippers_config):
+            # 根据对应的机器人类型来确定夹爪类型
+            robot_type = robots_config[i]['robot_type']
+            
+            if robot_type.startswith('xarm'):
+                this_gripper = XArmGripperController(
+                    shm_manager=shm_manager,
+                    hostname=gc['gripper_ip'],
+                    port=gc['gripper_port'],
+                    receive_latency=gc['gripper_obs_latency']
+                )
+            else:
+                # WSG夹爪 (用于 UR 和 Franka)
+                this_gripper = WSGController(
+                    shm_manager=shm_manager,
+                    hostname=gc['gripper_ip'],
+                    port=gc['gripper_port'],
+                    receive_latency=gc['gripper_obs_latency'],
+                    use_meters=True
+                )
 
             grippers.append(this_gripper)
 
