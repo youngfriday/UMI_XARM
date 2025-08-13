@@ -1,6 +1,7 @@
 # Deploy UMI Policy on xArm Robot
 
-<img width="90%" src="assets/xarm.png">
+<img width="70%" src="assets/xarm.png">
+
 ## System Overview
 
 * XArmInterface (Server): [scripts_real/launch_xarm_interface_server.py](scripts_real/launch_xarm_interface_server.py) (L14)
@@ -26,7 +27,7 @@
 
 * Launch XArmInterface Server on NUC.
 
-  `python scripts_real/launch_franka_interface_server.py`
+  `python scripts_real/launch_xarm_interface_server.py`
 
 * Obtain IP address and update [eval_xarm_config.yaml](example/eval_xarm_config.yaml)/robots/robot_ip.
 
